@@ -2,6 +2,8 @@
 
 Focus Flow is a PySide6 desktop time-management app for arranging tasks into a repeating focus schedule.
 
+![image-20260923013826564](assets/readme/image-20260923013826564.png)
+
 ## Features
 
 - Add multiple tasks with vivid color choices.
@@ -15,7 +17,8 @@ Focus Flow is a PySide6 desktop time-management app for arranging tasks into a r
 - Right-click the tray icon to choose `Open main UI` or `Exit`.
 - Change the UI language between English and Chinese from the main window. English is the default.
 - Toggle the floating progress bar and remaining-time display in Settings.
-- When the main UI is hidden, seconds are shown only during the final 30 seconds.
+- When remaining time is disabled, tasks longer than 30 seconds still show a countdown during the final 30 seconds.
+- Play `assets/notification.mp3` whenever a scheduled timer reaches zero.
 - Persist tasks, schedule order, display settings, and language selection.
 
 ## Environment
@@ -24,7 +27,7 @@ The project uses the dedicated Miniconda environment `adhd-timer`. Do not use th
 
 ```powershell
 & "D:\miniconda3\Scripts\conda.exe" create -n adhd-timer python=3.12 pip -y
-& "D:\miniconda3\Scripts\conda.exe" run -n adhd-timer python -m pip install pytest "PySide6-Essentials==6.8.2"
+& "D:\miniconda3\Scripts\conda.exe" run -n adhd-timer python -m pip install -r requirements.txt
 ```
 
 ## Run

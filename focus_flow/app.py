@@ -7,8 +7,9 @@ import sys
 import time
 from pathlib import Path
 
-from PySide6.QtCore import QStandardPaths, QSize, Qt, QTimer
+from PySide6.QtCore import QStandardPaths, QSize, Qt, QTimer, QUrl
 from PySide6.QtGui import QCloseEvent, QFont, QIcon, QKeyEvent, QPainter, QPixmap
+from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
@@ -88,6 +89,13 @@ class MainWindow(QMainWindow):
         self.schedule_list.setItemDelegate(TaskDelegate(self.schedule_list, self._get_task, lambda: self.planner.current_id, lambda: self.language))
 
         self.floating = FloatingTimer()
+        self.notification_player = QMediaPlayer(self)
+        self.notification_audio = QAudioOutput(self)
+        self.notification_audio.setVolume(1.0)
+        self.notification_player.setAudioOutput(self.notification_audio)
+        notification_path = Path(__file__).resolve().parent.parent / "assets" / "notification.mp3"
+        if notification_path.exists():
+            self.notification_player.setSource(QUrl.fromLocalFile(str(notification_path)))
         self.floating.open_requested.connect(self._show_main_menu)
         self.floating.pause_clicked.connect(self._toggle_pause)
         self.floating.skip_clicked.connect(self._skip_task)
@@ -124,8 +132,6 @@ class MainWindow(QMainWindow):
         self.pool_chip.setObjectName("chip")
         self.done_chip = QLabel(tr("timer_ready", self.language))
         self.done_chip.setObjectName("chip")
-        top.addWidget(self.pool_chip)
-        top.addWidget(self.done_chip)
         self.language_combo = QComboBox()
         self.language_combo.setAccessibleName(tr("language", self.language))
         self.language_combo.addItem("English", "en")
@@ -133,6 +139,8 @@ class MainWindow(QMainWindow):
         self.language_combo.setCurrentIndex(0 if self.language == "en" else 1)
         self.language_combo.currentIndexChanged.connect(self._change_language)
         top.addWidget(self.language_combo)
+        top.addWidget(self.pool_chip)
+        top.addWidget(self.done_chip)
         self.settings_button = QPushButton(tr("settings", self.language))
         self.settings_button.clicked.connect(self._open_settings)
         top.addWidget(self.settings_button)
@@ -292,6 +300,7 @@ class MainWindow(QMainWindow):
         dialog = SettingsDialog(self.planner.settings, self.language, self)
         if dialog.exec() == SettingsDialog.DialogCode.Accepted:
             self.planner.settings = dialog.result_settings()
+            self.planner.settings["language"] = self.language
             self._save()
             self._sync_controls()
             self._set_status(tr("settings_saved", self.language))
@@ -462,6 +471,8 @@ class MainWindow(QMainWindow):
         self.last_tick = now
         transitions = self.planner.tick(elapsed)
         if transitions:
+            self.notification_player.setPosition(0)
+            self.notification_player.play()
             finished = self.planner.tasks.get(transitions[-1])
             if self.planner.running and self.planner.current_task():
                 self._set_status(tr("task_completed", self.language, finished=finished.title if finished else tr("generic_task", self.language), next=self.planner.current_task().title))

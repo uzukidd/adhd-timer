@@ -2,6 +2,8 @@
 
 Focus Flow 是一个基于 PySide6 的桌面时间管理工具，用来安排按顺序循环执行的专注任务。
 
+![image-20260923013826564](assets/readme/image-20260923013826564.png)
+
 ## 功能
 
 - 添加多个任务，并选择高饱和度颜色。
@@ -15,7 +17,8 @@ Focus Flow 是一个基于 PySide6 的桌面时间管理工具，用来安排按
 - 右键点击托盘角标弹出菜单，可以选择“打开主 UI”或“退出”。
 - 可以在主 UI 中切换 English 和中文，默认语言为 English。
 - 在 Settings 中单独开关浮窗进度条和剩余时间。
-- 主 UI 隐藏时，只有最后 30 秒显示秒级倒计时。
+- 关闭剩余时间显示时，超过 30 秒的任务仍会在最后 30 秒显示倒计时。
+- 每当排程计时归零时播放 `assets/notification.mp3` 音效。
 - 自动保存任务、时刻表顺序、显示设置和语言选择。
 
 ## 环境
@@ -24,7 +27,7 @@ Focus Flow 是一个基于 PySide6 的桌面时间管理工具，用来安排按
 
 ```powershell
 & "D:\miniconda3\Scripts\conda.exe" create -n adhd-timer python=3.12 pip -y
-& "D:\miniconda3\Scripts\conda.exe" run -n adhd-timer python -m pip install pytest "PySide6-Essentials==6.8.2"
+& "D:\miniconda3\Scripts\conda.exe" run -n adhd-timer python -m pip install -r requirements.txt
 ```
 
 ## 启动

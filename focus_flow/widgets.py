@@ -321,7 +321,6 @@ class FloatingTimer(QWidget):
         self._paused = False
         self._show_progress = True
         self._show_time = True
-        self._hidden_mode = False
         self._language = "en"
         self._drag_offset: QPoint | None = None
         self._drag_moved = False
@@ -333,7 +332,6 @@ class FloatingTimer(QWidget):
         paused: bool,
         show_progress: bool = True,
         show_time: bool = True,
-        hidden_mode: bool = False,
         language: str = "en",
     ) -> None:
         if task is None:
@@ -345,7 +343,6 @@ class FloatingTimer(QWidget):
         self._paused = paused
         self._show_progress = show_progress
         self._show_time = show_time
-        self._hidden_mode = hidden_mode
         self._language = language
         self.update()
 
@@ -377,8 +374,8 @@ class FloatingTimer(QWidget):
         painter.drawText(QRect(20, 38, 100, 18), Qt.AlignmentFlag.AlignLeft, state)
         painter.setPen(text)
         painter.setFont(QFont("Segoe UI", 15))
-        if self._show_time:
-            time_text = self._format_time(self._remaining, self._hidden_mode, self._language)
+        if self._should_show_time():
+            time_text = self._format_time(self._remaining, self._language)
             painter.drawText(QRect(self.width() - 137, 20, 72, 28), Qt.AlignmentFlag.AlignRight, time_text)
         self._draw_button(painter, self.width() - 58, 17, "▶" if self._paused else "Ⅱ", self.pause_clicked)
         self._draw_button(painter, self.width() - 31, 17, "›", self.skip_clicked)
@@ -416,11 +413,10 @@ class FloatingTimer(QWidget):
         self._drag_offset = None
         super().mouseReleaseEvent(event)
 
+    def _should_show_time(self) -> bool:
+        return self._show_time or (self._total > 30 and 0 < self._remaining <= 30)
+
     @staticmethod
-    def _format_time(seconds: int, hidden_mode: bool = False, language: str = "en") -> str:
-        if hidden_mode and seconds > 30:
-            hours, remainder = divmod(seconds, 3600)
-            minutes = remainder // 60
-            return tr("hidden_hm" if hours else "hidden_m", language, hours=hours, minutes=minutes)
+    def _format_time(seconds: int, language: str = "en") -> str:
         minutes, seconds = divmod(seconds, 60)
         return f"{minutes:02d}:{seconds:02d}"
