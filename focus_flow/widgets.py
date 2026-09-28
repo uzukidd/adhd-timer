@@ -159,6 +159,8 @@ class TaskListWidget(QListWidget):
 
 
 class TaskDialog(QDialog):
+    COPY_RESULT = 2
+
     def __init__(self, parent: QWidget | None = None, task: Task | None = None, language: str = "en") -> None:
         super().__init__(parent)
         self.language = language
@@ -230,10 +232,17 @@ class TaskDialog(QDialog):
         modes.addStretch(1)
         root.addLayout(modes)
 
+        button_row = QHBoxLayout()
+        if task is not None:
+            self.copy_button = QPushButton(tr("copy_task", language))
+            self.copy_button.clicked.connect(self._copy)
+            button_row.addWidget(self.copy_button)
+        button_row.addStretch(1)
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok)
         buttons.accepted.connect(self._accept)
         buttons.rejected.connect(self.reject)
-        root.addWidget(buttons)
+        button_row.addWidget(buttons)
+        root.addLayout(button_row)
         self.title_edit.setFocus()
 
     def _section_label(self, text: str) -> QLabel:
@@ -244,14 +253,22 @@ class TaskDialog(QDialog):
     def _choose_color(self, color: str) -> None:
         self.selected_color = color
 
-    def _accept(self) -> None:
+    def _copy(self) -> None:
+        if self._valid_task():
+            self.done(self.COPY_RESULT)
+
+    def _valid_task(self) -> bool:
         if not self.title_edit.text().strip():
             self.title_edit.setFocus()
-            return
+            return False
         if self.hours.value() == 0 and self.minutes.value() == 0 and self.seconds.value() == 0:
             self.seconds.setFocus()
-            return
-        self.accept()
+            return False
+        return True
+
+    def _accept(self) -> None:
+        if self._valid_task():
+            self.accept()
 
     def result_task(self) -> Task:
         old_id = self.task.id if self.task else None
