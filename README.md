@@ -9,6 +9,7 @@ Focus Flow is a PySide6 desktop time-management app for arranging tasks into a r
 - Add multiple tasks with vivid color choices.
 - Set task duration in hours, minutes, and seconds.
 - Choose repeating or one-time execution.
+- In the task editor, use Copy to insert a duplicate directly below the original in the same list.
 - Drag tasks between the task pool and schedule, then reorder them.
 - Run tasks in order and automatically move one-time tasks back to the pool when they finish.
 - Use an always-on-top, draggable floating timer with pause and skip controls.
