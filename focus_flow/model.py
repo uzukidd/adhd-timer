@@ -110,6 +110,24 @@ class Planner:
         if task.id not in target:
             target.append(task.id)
 
+    def duplicate_task(self, task_id: str, template: Task | None = None) -> Task | None:
+        source = self.tasks.get(task_id)
+        if source is None:
+            return None
+        source = template if template is not None else source
+        duplicate = Task.create(
+            title=source.title,
+            duration_seconds=source.duration_seconds,
+            color=source.color,
+            mode=source.mode,
+        )
+        target = self.schedule_ids if task_id in self.schedule_ids else self.pool_ids
+        if task_id not in target:
+            return None
+        self.tasks[duplicate.id] = duplicate
+        target.insert(target.index(task_id) + 1, duplicate.id)
+        return duplicate
+
     def remove_task(self, task_id: str) -> None:
         if task_id == self.current_id:
             self.stop()

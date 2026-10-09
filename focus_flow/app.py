@@ -392,7 +392,14 @@ class MainWindow(QMainWindow):
         if task is None:
             return
         dialog = TaskDialog(self, task, self.language)
-        if dialog.exec() == TaskDialog.DialogCode.Accepted:
+        result = dialog.exec()
+        if result == TaskDialog.COPY_RESULT:
+            duplicate = self.planner.duplicate_task(task_id, dialog.result_task())
+            if duplicate is not None:
+                self.refresh_lists()
+                self._save()
+                self._set_status(tr("task_copied", self.language, title=duplicate.title))
+        elif result == TaskDialog.DialogCode.Accepted:
             self.planner.update_task(dialog.result_task())
             self.refresh_lists()
             self._save()
