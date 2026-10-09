@@ -26,8 +26,8 @@ Focus Flow 是一个基于 PySide6 的桌面时间管理工具，用来安排按
 项目使用专用的 Miniconda 环境 `adhd-timer`。不要使用 `base` 环境或系统 Python。
 
 ```powershell
-& "D:\miniconda3\Scripts\conda.exe" create -n adhd-timer python=3.12 pip -y
-& "D:\miniconda3\Scripts\conda.exe" run -n adhd-timer python -m pip install -r requirements.txt
+conda create -n adhd-timer python=3.12 pip -y
+conda run -n adhd-timer python -m pip install -r requirements.txt
 ```
 
 ## 启动
@@ -41,13 +41,51 @@ PowerShell：
 也可以直接运行：
 
 ```powershell
-& "D:\miniconda3\Scripts\conda.exe" run -n adhd-timer python -m focus_flow.app
+conda run -n adhd-timer python -m focus_flow.app
 ```
 
 Git Bash 或类 Unix shell：
 
 ```sh
 ./scripts/run.sh
+```
+
+## Windows EXE 打包
+
+在 Windows 上安装 Conda 并创建 `adhd-timer` 环境后，从项目根目录运行：
+
+```powershell
+.\scripts\build.bat
+```
+
+该命令自动安装 `requirements-build.txt` 中的固定构建工具版本，使用 `bundle/FocusFlow.spec` 生成无控制台窗口的文件夹版 EXE，打包 Python、Qt、QtMultimedia 插件和 `assets/notification.mp3`，随后从独立临时目录启动 EXE 并验证界面和 FFmpeg 后端的静音 MP3 播放。验证通过后生成 ZIP 和 SHA-256 校验文件。每次构建先移除旧 ZIP、校验文件和验证报告，失败时不会保留上次的分发包。
+
+输出：
+
+- `dist/FocusFlow/FocusFlow.exe`：本机运行入口。
+- `dist/FocusFlow-windows-x64.zip`：分发包，接收方解压整个 ZIP 后运行 EXE，无需安装 Python 或 Conda。
+- `dist/FocusFlow-windows-x64.zip.sha256`：分发包校验值。
+- `dist/smoke-report.json`：独立 EXE 验证报告。
+- `dist/build-info.json`：Python 版本、架构与实际构建依赖版本记录，也包含在 ZIP 中。
+
+分发时必须保留 EXE 旁的 `_internal` 文件夹。构建机器使用 Windows 64 位 Python；此管线生成 Windows 64 位应用。
+
+依赖已安装时，可以跳过安装步骤：
+
+```powershell
+.\scripts\build.bat --skip-install
+```
+
+也可以直接调用 Python 构建脚本：
+
+```powershell
+conda run --no-capture-output -n adhd-timer python scripts\build.py
+```
+
+PyInstaller 的原始打包命令（仅构建，不执行后续验证和 ZIP 归档）：
+
+```powershell
+conda run --no-capture-output -n adhd-timer python -m PyInstaller --noconfirm --clean --distpath dist --workpath build bundle\FocusFlow.spec
 ```
 
 ## 测试

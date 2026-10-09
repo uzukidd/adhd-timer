@@ -26,8 +26,8 @@ Focus Flow is a PySide6 desktop time-management app for arranging tasks into a r
 The project uses the dedicated Miniconda environment `adhd-timer`. Do not use the `base` environment or the system Python.
 
 ```powershell
-& "D:\miniconda3\Scripts\conda.exe" create -n adhd-timer python=3.12 pip -y
-& "D:\miniconda3\Scripts\conda.exe" run -n adhd-timer python -m pip install -r requirements.txt
+conda create -n adhd-timer python=3.12 pip -y
+conda run -n adhd-timer python -m pip install -r requirements.txt
 ```
 
 ## Run
@@ -41,13 +41,51 @@ PowerShell:
 Or directly:
 
 ```powershell
-& "D:\miniconda3\Scripts\conda.exe" run -n adhd-timer python -m focus_flow.app
+conda run -n adhd-timer python -m focus_flow.app
 ```
 
 Git Bash or a Unix-like shell:
 
 ```sh
 ./scripts/run.sh
+```
+
+## Build a Windows EXE
+
+On Windows, create the `adhd-timer` Conda environment, then run from the project root:
+
+```powershell
+.\scripts\build.bat
+```
+
+The script installs the pinned build toolchain in `requirements-build.txt`, builds a windowed folder-based EXE using `bundle/FocusFlow.spec`, and bundles Python, Qt, QtMultimedia plugins, and `assets/notification.mp3`. It launches the frozen app from a separate temporary directory with Python/Conda paths removed, checks the UI and muted MP3 playback using the FFmpeg backend, then creates a ZIP and SHA-256 checksum. Previous ZIPs, checksums, and validation reports are removed at the start so a failed build cannot leave a stale release archive.
+
+Outputs:
+
+- `dist/FocusFlow/FocusFlow.exe`: application entry point.
+- `dist/FocusFlow-windows-x64.zip`: distribute this ZIP; extract it entirely and run the EXE without installing Python or Conda.
+- `dist/FocusFlow-windows-x64.zip.sha256`: archive checksum.
+- `dist/smoke-report.json`: frozen application validation report.
+- `dist/build-info.json`: Python version, architecture, and resolved build dependency versions; also included in the ZIP.
+
+Keep the `_internal` directory next to the EXE. Build with 64-bit Python on Windows to produce the Windows x64 application.
+
+Skip dependency installation on later builds:
+
+```powershell
+.\scripts\build.bat --skip-install
+```
+
+Equivalent Python pipeline command:
+
+```powershell
+conda run --no-capture-output -n adhd-timer python scripts\build.py
+```
+
+Raw PyInstaller command (build only, without smoke testing or ZIP creation):
+
+```powershell
+conda run --no-capture-output -n adhd-timer python -m PyInstaller --noconfirm --clean --distpath dist --workpath build bundle\FocusFlow.spec
 ```
 
 ## Test
