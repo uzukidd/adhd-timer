@@ -98,6 +98,7 @@ class Planner:
             "show_progress": True,
             "show_time": True,
             "language": "en",
+            "autostart": False,
         }
         self.current_id: str | None = None
         self.remaining_seconds: float = 0
@@ -238,6 +239,7 @@ class Planner:
         if isinstance(saved_settings, dict):
             planner.settings["show_progress"] = bool(saved_settings.get("show_progress", True))
             planner.settings["show_time"] = bool(saved_settings.get("show_time", True))
+            planner.settings["autostart"] = bool(saved_settings.get("autostart", False))
             language = saved_settings.get("language", "en")
             planner.settings["language"] = language if language in ("en", "zh") else "en"
         placed = set(planner.pool_ids) | set(planner.schedule_ids)

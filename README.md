@@ -18,6 +18,7 @@ Focus Flow is a PySide6 desktop time-management app for arranging tasks into a r
 - Right-click the tray icon to choose `Open main UI` or `Exit`.
 - Change the UI language between English and Chinese from the main window. English is the default.
 - Toggle the floating progress bar and remaining-time display in Settings.
+- Enable Windows login startup in Settings (off by default). Confirm to apply; uncheck to remove it. The startup entry uses the current Python environment and project path, so re-enable it after moving either.
 - When remaining time is disabled, tasks longer than 30 seconds still show a countdown during the final 30 seconds.
 - Play `assets/notification.mp3` whenever a scheduled timer reaches zero.
 - Persist tasks, schedule order, display settings, and language selection.

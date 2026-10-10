@@ -308,6 +308,9 @@ class SettingsDialog(QDialog):
         self.time_check = QCheckBox(tr("show_time", language))
         self.time_check.setChecked(settings.get("show_time", True))
         root.addWidget(self.time_check)
+        self.autostart_check = QCheckBox(tr("autostart", language))
+        self.autostart_check.setChecked(settings.get("autostart", False))
+        root.addWidget(self.autostart_check)
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
@@ -317,6 +320,7 @@ class SettingsDialog(QDialog):
         return {
             "show_progress": self.progress_check.isChecked(),
             "show_time": self.time_check.isChecked(),
+            "autostart": self.autostart_check.isChecked(),
         }
 
 

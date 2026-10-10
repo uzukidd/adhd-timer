@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from . import autostart
 from .i18n import SUPPORTED_LANGUAGES, tr
 from .model import Planner, Task
 from .widgets import FloatingTimer, SettingsDialog, TaskDelegate, TaskDialog, TaskListWidget
@@ -297,9 +298,23 @@ class MainWindow(QMainWindow):
         self._sync_controls()
 
     def _open_settings(self) -> None:
-        dialog = SettingsDialog(self.planner.settings, self.language, self)
+        settings = dict(self.planner.settings)
+        try:
+            settings["autostart"] = autostart.is_enabled()
+        except OSError as error:
+            QMessageBox.warning(self, tr("settings", self.language), tr("autostart_error", self.language, error=str(error)))
+            return
+        dialog = SettingsDialog(settings, self.language, self)
+        dialog.autostart_check.setEnabled(sys.platform == "win32")
         if dialog.exec() == SettingsDialog.DialogCode.Accepted:
-            self.planner.settings = dialog.result_settings()
+            result = dialog.result_settings()
+            try:
+                if result["autostart"] != settings["autostart"]:
+                    autostart.set_enabled(result["autostart"])
+            except OSError as error:
+                QMessageBox.warning(self, tr("settings", self.language), tr("autostart_error", self.language, error=str(error)))
+                return
+            self.planner.settings.update(result)
             self.planner.settings["language"] = self.language
             self._save()
             self._sync_controls()
